@@ -1,0 +1,117 @@
+{% extends "basematter.html" %}
+{% load static %}
+
+<!-- タイトル -->
+{% block title %}Complaint Sheet 案件管理{% endblock %}
+
+<!-- メインコンテンツ -->
+{% block main %}
+<main>
+  <body class="bg-light">
+    <div class="container">
+      <div class="py-5 text-center">
+        <!--<h2>Complaint Sheet 案件リスト</h2>-->
+      </div>
+    </div>
+    <div class="container" id="matterlist">
+    </div>
+  </body>
+</main>
+
+  <script>
+
+    $('#logoutbutton').click(function(){
+      $.ajax({
+        type: 'GET',
+        url: '/logout/',
+        datatype: 'json'
+      })
+      .always(function(){
+        window.location.href = "/login/";
+      });
+    });
+
+    $(document).ready(function(){
+      let isstaff = false;
+
+      // スタッフ権限の有無判定
+      function isStaff(){
+        let deferred = new $.Deferred;
+        $.ajax({
+          type: 'GET',
+          url: '/authindex/',
+          datatype: 'json'
+        })
+        .done(function(data){
+          if(data.is_staff  == 'True'){
+            isstaff = true;
+          }
+          deferred.resolve();
+        })
+        .fail(function(){
+          deferred.reject();
+          window.location.href = "/login/";
+        })
+        return deferred.promise();
+      }
+
+
+      // 案件表示
+      function showMatters(){
+        let deferred = new $.Deferred;
+        $.ajax({
+          type: 'GET',
+          url: '/apisys/matters/',
+          datatype: 'json'
+        })
+        .done(function(data){
+          let div = '';
+          div += '<p>Complaint 案件リスト</p>'
+          div += '<table class="table table-striped">';
+          div += '<thead class="thead-light"><tr>';
+          if(isstaff){
+            div += '<th scope="col">管理 No.</th>'; 
+            div += '<th scope="col">受付日</th>';
+          }
+          div += '<th scope="col">営業担当</th>';
+          div += '<th scope="col">型番</th>';
+          div += '<th scope="col">完了</th>';
+          div += '</tr></thead>';
+          div += '<tbody>';
+          $.each(data, function(index, value){
+            div += '<tr>';
+            if(isstaff){
+              div += '<th scope="row">';
+              div += '<a href="/fix-matter/' + value.id + '/">';
+              div += value.sheet_matter_id;
+              div += '</a></th>';
+              div += '<td>' + value.entry_date + '</td>';
+            }
+            div += '<td>' + value.sales_person + '</td>';
+            div += '<td>' + value.item_description + '</td>';
+            if(value.is_closed){
+              div += '<td><font color="green">完了</font></td></tr>';
+            }else{
+              div += '<td><font color="red">未完了</font></td></tr>';
+            }
+            // div += '<td class="text-right">' +value.order_qty + '</td></tr>';
+          });
+          div += '</tbody></table>';
+          if(data.length > 0){
+            $('#matterlist').append(div);
+          }
+          deferred.resolve();
+        })
+        .fail(function(){
+          deferred.reject();
+        });
+        return deferred.promise();
+      }
+      isStaff()
+      .then(showMatters)
+
+    });
+
+  </script>
+
+  {% endblock %}

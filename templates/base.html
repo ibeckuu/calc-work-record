@@ -1,0 +1,89 @@
+<!doctype html>
+{% load static %}
+<html lang="ja">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <!--Ajax-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+    <link href="{% static 'favicon.ico' %}" rel='icon' >
+    <link href="{% static 'apple-touch-icon.png' %}" rel='icon' >
+    <link href="{% static 'apple-touch-icon-precomposed.png' %}" rel='icon' >
+    <link href="{% static 'form-validation.css' %}" rel='stylesheet'>
+    <!--<script src="{% static 'form-validation.js' %}"></script>-->
+
+    <!-- タイトル -->
+    <title>{% block title %}{% endblock %}</title>
+
+    <style>
+      .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      }
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <a class="navbar-brand" href="/">QAチームスケジュール</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controlles="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class= "collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href={% url "input_order" execute_date %}>出荷予定入力</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href={% url "input_result" execute_date %}>検査実績入力</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href={% url "input_working" execute_date %}>作業実績入力</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href={% url "input_event" execute_date %}>イベント入力</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href={% url "aggregate" execute_date %}>実績集計</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle"  href='#' id="navbarDropdownAdd" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">データ追加</a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" id="addCustomerbutton" href='/addcustomers/'>ユーザー登録</a>
+              <a class="dropdown-item" id="addItemsbutton" href='/additems/'>アイテム登録</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle"  href='#' id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">ログアウト</a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" id="logoutbutton" href='/logout/'>ログアウト</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- メインコンテンツ -->
+    {% block main %}{% endblock %}
+
+    <!-- フッター -->
+    {% block footer %}
+    {% endblock %}
+</body>

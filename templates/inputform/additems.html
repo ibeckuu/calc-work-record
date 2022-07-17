@@ -1,0 +1,323 @@
+{% extends "basefix.html" %}
+{% load static %}
+
+<!-- タイトル -->
+{% block title %}新規アイテム登録{% endblock %}
+
+<!-- メインコンテンツ -->
+{% block main %}
+<main>
+  <body class="bg-light">
+    <div class="container">
+      <div class="py-5 text-center">
+        <h2>新規アイテム登録</h2>
+      </div>
+      <div class="row">
+        <div class="col-md-12 order-md-1">
+          <form class="needs-validation" novalidate>
+
+            <div class="row">
+              <div class="col-sm">
+                <label for="selectProducer">イスカル／テグテック</label>
+                <select class="form-control" id="selectProducer" placeholder="" value="" required>
+                <option>イスカル</option>
+                <option>テグテック</option>
+                <option>テグテック-R</option>
+                <option>テグテック-B8</option>
+                </select>
+              </div>
+              <div class="col-sm">
+              </div>
+              <div class="col-md-6 mb-3">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm">
+                <label for="inputNewItemnumber">アイテム番号</label>
+                <input type="text" class="form-control" id="inputNewItemnumber" placeholder="" value="">
+              </div>
+              <div class="col-sm">
+                <label for="inputShortName">ショートネーム</label>
+                <input type="text" class="form-control" id="inputShortName" placeholder="" value="">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="inputNewDescription">型番</label>
+                <input type="text" class="form-control" id="inputNewDescription" placeholder="" value="">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm">
+              </div>
+              <div class="col-sm">
+                <label for="buttonInput"> </label>
+                <button class="btn btn-primary btn-lg btn-block" type="submit" id="buttonInput">入力</button>
+              </div>
+            </div>
+
+            <br><br>
+            <div class="py-5 text-center">
+              <h2>アイテム修正</h2>
+            </div>
+
+            <div class="row">
+              <!--
+              <div class="col-md-6 mb-3">
+                <label for="inputCustomerName">ユーザー名</label>
+                <input type="text" class="form-control" id="inputCustomerName" placeholder="" value="" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectCustomer">ユーザー名選択</label>
+                <select class="form-control" id="selectCustomer">
+                </select>
+              </div>
+              -->
+
+              <div class="col-md-6 mb-3">
+                <label for="inputDescription">型番</label>
+                <input type="text" class="form-control" id="inputDescription" placeholder="" value="" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectDescription">アイテム番号 : 型番選択</label>
+                <select class="form-control" id="selectDescription">
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm">
+              </div>
+              <div class="col-sm">
+                <label for="fixShortName">ショートネーム</label>
+                <input type="text" class="form-control" id="fixShortName">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="fixDescription">型番</label>
+                <input type="text" class="form-control" id="fixDescription">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm">
+                <label for="buttonInput"> </label>
+                <button class="btn btn-danger btn-lg btn-block" type="submit" id="buttonDelete">削除</button>
+              </div>
+              <div class="col-sm">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="buttonInput"> </label>
+                <button class="btn btn-warning btn-lg btn-block" type="submit" id="buttonFix">修正</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</main>
+
+<!--
+<script src="{% static 'inputinspection.js' %}"></script>
+-->
+<script>
+
+// 新規アイテム登録
+$('#buttonInput').click(function () {
+
+  var selectProducer = document.getElementById("selectProducer");
+  var selectProducerId = 0;
+  for (var i = 0; i < selectProducer.options.length; i++){
+    if (selectProducer.options[i].selected){
+      selectProducerId = i + 1;
+    }
+  }
+
+  var inputNewItemnumber = document.getElementById("inputNewItemnumber").value;
+  var inputShortName = document.getElementById("inputShortName").value;
+  var inputNewDescription = document.getElementById("inputNewDescription").value;
+
+  if(inputNewItemnumber == ''){
+    alert("アイテム番号欄が入力されていません");
+  }else if(isNaN(Number(inputNewItemnumber))){
+    alert("アイテム番号欄には数値を入力して下さい");
+  }else if((Number(inputNewItemnumber) < 1000000) 
+    || (Number(inputNewItemnumber) > 9999999)){
+    alert("アイテム番号の入力値が正しくありません");
+  }else if(inputShortName == ''){
+    alert("ショートネーム欄が入力されていません");
+  }else if(inputShortName.length > 16){
+    alert("ショートネームは16文字以下にして下さい")
+  }else if(inputNewDescription == ''){
+    alert("型番欄が入力されていません");
+  }else{
+    var itemNumber = Number(inputNewItemnumber);
+    var itemId = selectProducerId * 10000000 + itemNumber;
+    function getCookie(name){
+      let cookieValue = null;
+      if(document.cookie && document.cookie !== ''){
+        const cookies = document.cookie.split(';');
+        for(let i = 0; i < cookies.length; i++){
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')){
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    $.ajax({
+      type: 'POST',
+      url: '/api/v1/item/',
+      headers: {'X-CSRFToken': csrftoken},
+      data: {
+        id: itemId,
+        producer_id: selectProducerId,
+        item_number: itemNumber,
+        description: inputNewDescription,
+        short_name: inputShortName
+      },
+      dataType: 'json'
+    })
+    .done(function(data,textStatus, jqXHR){
+      alert("1件のデータを入力しました");
+    })
+    .fail(function(data, textStatus, jqXHR){
+      console.log(jqXHR.status);
+      alert(textStatus);
+    });
+  }
+});
+
+// アイテム番号：型番選択
+var descriptionIdArr = [];
+var description = document.getElementById('inputDescription');
+description.oninput = handleDescription;
+function handleDescription(e){
+  $.ajax({
+    type: 'GET',
+    url: '/api/v1/item/?description__contains=' + e.target.value,
+    success: function(data, statusText, jqXHR){
+      descriptionIdArr.length = 0;
+      $('#selectDescription').empty();
+      $.each(data, function(index, value){
+        var selectDesc = '<option>' + value.item_number + " : " + value.description + '</option>';
+        $(selectDesc).appendTo('#selectDescription');
+        descriptionIdArr.push(value.id);
+      })
+    }
+  })
+}
+
+// アイテム修正
+$('#buttonFix').click(function(){
+  var selectDescription = document.getElementById("selectDescription");
+  var selectedItemId = 0;
+  for (var i = 0; i < selectDescription.options.length; i++){
+    if (selectDescription.options[i].selected){
+      selectedItemId = descriptionIdArr[i];
+    }
+  }
+
+  var fixShortName = document.getElementById("fixShortName").value;
+  var fixDescription = document.getElementById("fixDescription").value;
+
+  if(selectedItemId == 0){
+    alert("アイテム番号：型番選択欄が選択されていません");
+  }else if(fixShortName == ''){
+    alert("ショートネーム欄が入力されていません");
+  }else if(fixDescription == ''){
+    alert("型番欄が入力されていません");
+  }else{
+    function getCookie(name){
+      let cookieValue = null;
+      if(document.cookie && document.cookie !== ''){
+        const cookies = document.cookie.split(';');
+        for(let i = 0; i < cookies.length; i++){
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')){
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+    $.ajax({
+      type: 'PATCH',
+      url: '/api/v1/item/' + selectedItemId + '/',
+      headers: {'X-CSRFToken': csrftoken},
+      data: {
+        description: fixDescription,
+        short_name: fixShortName
+      },
+      dataType: 'json'
+    })
+    .done(function(){
+      alert("1件のデータを修正しました")
+    })
+    .fail(function(jqXHR, textStatus, error){
+      alert("修正に失敗しました");
+    });
+  }
+})
+
+//アイテム削除
+$('#buttonDelete').click(function(){
+  var selectDescription = document.getElementById("selectDescription");
+  var selectedItemId = 0;
+  var selectedItem = '';
+  for (var i = 0; i < selectDescription.options.length; i++){
+    if (selectDescription.options[i].selected){
+      selectedItemId = descriptionIdArr[i];
+      selectedItem = selectDescription.options[i].text;
+    }
+  }
+
+  if(selectedItemId == 0){
+    alert("アイテム番号：型番選択欄が選択されていません");
+  }else{
+    var text = selectedItem + '\n' + 'このアイテムを削除しますか?';
+    var result = window.confirm(text);
+    if(result){
+     function getCookie(name){
+       let cookieValue = null;
+       if(document.cookie && document.cookie !== ''){
+         const cookies = document.cookie.split(';');
+         for(let i = 0; i < cookies.length; i++){
+           const cookie = cookies[i].trim();
+           // Does this cookie string begin with the name we want?
+           if (cookie.substring(0, name.length + 1) === (name + '=')){
+             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+             break;
+           }
+         }
+       }
+       return cookieValue;
+     }
+     const csrftoken = getCookie('csrftoken');
+      $.ajax({
+       type: 'DELETE',
+        url: '/api/v1/item/' + selectedItemId + '/',
+        headers: {'X-CSRFToken': csrftoken},
+        dataType: 'json'
+      })
+      .done(function(){
+        alert("1件のデータを削除しました");
+      })
+      .fail(function(jqXHR, textStatus, error){
+       alert("データの削除に失敗しました");
+      });
+    }
+  }
+})
+
+</script>
+
+{% endblock %}

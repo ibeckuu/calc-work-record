@@ -1,0 +1,308 @@
+{% extends "basefix.html" %}
+{% load static %}
+
+<!-- タイトル -->
+{% block title %}新規ユーザー登録{% endblock %}
+
+<!-- メインコンテンツ -->
+{% block main %}
+<main>
+  <body class="bg-light">
+    <div class="container">
+      <div class="py-5 text-center">
+        <h2>新規ユーザー登録</h2>
+      </div>
+      <div class="row">
+        <div class="col-md-12 order-md-1">
+          <form class="needs-validation" novalidate>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="inputCustomerName">ユーザー名</label>
+                <input type="text" class="form-control" id="inputCustomerName" placeholder="" value="" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectCustomer">ユーザー名選択</label>
+                <select class="form-control" id="selectCustomer">
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="fixCustomerName">ユーザー名（修正）</label>
+                <input type="text" class="form-control" id="fixCustomerName">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectDistrict">営業所選択</label>
+                <select class="form-control" id="selectDistrict">
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm">
+              </div>
+              <div class="col-sm">
+                <label for="buttonInput"> </label>
+                <button class="btn btn-primary btn-lg btn-block" type="submit" id="buttonInput">入力</button>
+              </div>
+            </div>
+
+
+            <div class="row">
+              <div class="col-sm">
+                <label for="buttonInput"> </label>
+                <button class="btn btn-danger btn-lg btn-block" type="submit" id="buttonDelete">削除</button>
+              </div>
+              <div class="col-sm">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="buttonInput"> </label>
+                <button class="btn btn-warning btn-lg btn-block" type="submit" id="buttonFix">修正</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</main>
+
+<script>
+
+// ユーザー名選択
+var customerIdArr = [];
+var customerDistrictArr = [];
+var input = document.getElementById('inputCustomerName');
+input.oninput = handleInput;
+function handleInput(e) {
+  $.ajax({
+    type: 'GET',
+    url: '/api/v1/customer/?name__contains=' + e.target.value + '&delete__exact=False',
+    success: function (data, statusText, jqXHR) {
+      customerIdArr.length = 0;
+      $('#selectCustomer').empty();
+      $.each(data, function (index, value) {
+        var selectItem = '<option>' + value.customer_name + '</option>';
+        $(selectItem).appendTo('#selectCustomer');
+        customerIdArr.push(value.id);
+        customerDistrictArr.push(value.district);
+      })
+    }
+  })
+}
+
+//  営業所選択 
+var districtCodeArr = [];
+var description = document.getElementById('selectDistrict');
+window.addEventListener('load', function(){
+  $.ajax({
+    type: 'GET',
+    url: '/api/v1/district/?delete__exact=false',
+    success: function(data, statusText, jqXHR){
+      districtCodeArr.length = 0;
+      $('#selectDistrict').empty();
+      $.each(data, function(index, value){
+        var selectDist = '<option>' + value.district_name + '</option>';
+        $(selectDist).appendTo('#selectDistrict');
+        districtCodeArr.push(value.district_code);
+      })
+    }
+  })
+})
+
+
+// 新規アイテム登録
+$('#buttonInput').click(function () {
+
+  var selectCustomer = document.getElementById("selectCustomer");
+  var selectedCustomerId = '';
+  var selectedCustomerName = '';
+  for (var i = 0; i < selectCustomer.options.length; i++){
+    if (selectCustomer.options[i].selected){
+      selectedCustomerId = customerIdArr[i];
+      selectedCustomerName = selectCustomer.options[i].text
+    }
+  }
+
+  var selectDistrict = document.getElementById("selectDistrict");
+  var selectedDistrictCode = 0;
+  for (var i = 0; i < selectDistrict.options.length; i++){
+    if (selectDistrict.options[i].selected){
+      selectedDistrictCode = districtCodeArr[i];
+    }
+  }
+
+  var inputCustomerName = document.getElementById("inputCustomerName").value;
+
+  if(selectedCustomerId != ''){
+    alert("似た名前のユーザーの登録があります");
+  }else if(inputCustomerName == ''){
+    alert("ユーザー名が入力されていません");
+  }else{
+    function getCookie(name){
+      let cookieValue = null;
+      if(document.cookie && document.cookie !== ''){
+        const cookies = document.cookie.split(';');
+        for(let i = 0; i < cookies.length; i++){
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')){
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    $.ajax({
+      type: 'POST',
+      url: '/api/v1/customer/',
+      headers: {'X-CSRFToken': csrftoken},
+      data: {
+        customer_name: inputCustomerName,
+        district: selectedDistrictCode
+      },
+      dataType: 'json'
+    })
+    .done(function(data,textStatus, jqXHR){
+      alert("1件のデータを入力しました");
+    })
+    .fail(function(data, textStatus, jqXHR){
+      console.log(jqXHR.status);
+      alert(textStatus);
+    });
+  }
+});
+
+
+// ユーザー修正
+$('#buttonFix').click(function(){
+  var updateList = {};
+
+  var selectCustomer = document.getElementById("selectCustomer");
+  var selectedCustomerId = '';
+  var selectedCustomerName = '';
+  var selectedCustomerDistrict = 0;
+  for (var i = 0; i < selectCustomer.options.length; i++){
+    if (selectCustomer.options[i].selected){
+      selectedCustomerId = customerIdArr[i];
+      selectedCustomerName = selectCustomer.options[i].text
+      selectedCustomerDistrict = customerDistrictArr[i];
+    }
+  }
+
+  var selectDistrict = document.getElementById("selectDistrict");
+  var fixDistrictCode = 0;
+  for (var i = 0; i < selectDistrict.options.length; i++){
+    if (selectDistrict.options[i].selected){
+      fixDistrictCode = districtCodeArr[i];
+    }
+  }
+
+  // ユーザー名
+  var fixCustomerName = document.getElementById("fixCustomerName").value;
+  if(fixCustomerName !== '' && fixCustomerName !== selectedCustomerName){
+    updateList.customer_name = fixCustomerName;
+  }
+
+  // 地区コード
+  if(fixDistrictCode !== 0 && fixDistrictCode != selectedCustomerDistrict){
+    updateList.district = fixDistrictCode;
+  }
+
+
+  if(Object.keys(updateList).length === 0){
+    alert("修正する項目はありません");
+  }else if(selectedCustomerId === ''){
+    alert("修正するユーザーが選択されていません");
+  }else{
+    function getCookie(name){
+      let cookieValue = null;
+      if(document.cookie && document.cookie !== ''){
+        const cookies = document.cookie.split(';');
+        for(let i = 0; i < cookies.length; i++){
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')){
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+    $.ajax({
+      type: 'PATCH',
+      url: '/api/v1/customer/' + selectedCustomerId + '/',
+      headers: {'X-CSRFToken': csrftoken},
+      data: updateList, 
+      dataType: 'json'
+    })
+    .done(function(){
+      alert("1件のデータを修正しました")
+    })
+    .fail(function(jqXHR, textStatus, error){
+      alert("修正に失敗しました");
+    });
+  }
+})
+
+//アイテム削除
+$('#buttonDelete').click(function(){
+  var selectCustomer = document.getElementById("selectCustomer");
+  var selectedCustomerId = '';
+  var selectedCustomerName = '';
+  for (var i = 0; i < selectCustomer.options.length; i++){
+    if (selectCustomer.options[i].selected){
+      selectedCustomerId = customerIdArr[i];
+      selectedCustomerName = selectCustomer.options[i].text;
+    }
+  }
+
+  if(selectedCustomerId == ''){
+    alert("ユーザー名選択欄が選択されていません");
+  }else{
+    var text = selectedCustomerName + '\n' + 'このユーザーを削除しますか?';
+    var result = window.confirm(text);
+    if(result){
+     function getCookie(name){
+       let cookieValue = null;
+       if(document.cookie && document.cookie !== ''){
+         const cookies = document.cookie.split(';');
+         for(let i = 0; i < cookies.length; i++){
+           const cookie = cookies[i].trim();
+           // Does this cookie string begin with the name we want?
+           if (cookie.substring(0, name.length + 1) === (name + '=')){
+             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+             break;
+           }
+         }
+       }
+       return cookieValue;
+     }
+     const csrftoken = getCookie('csrftoken');
+      $.ajax({
+       type: 'PATCH',
+        url: '/api/v1/customer/' + selectedCustomerId + '/',
+        headers: {'X-CSRFToken': csrftoken},
+        data: {is_delete: true},
+        dataType: 'json'
+      })
+      .done(function(){
+        alert("1件のデータを削除しました");
+      })
+      .fail(function(jqXHR, textStatus, error){
+       alert("データの削除に失敗しました");
+      });
+    }
+  }
+})
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+{% load static %}
+
+<!-- タイトル -->
+{% block title %}検査実績入力{% endblock %}
+
+<!-- メインコンテンツ -->
+{% block main %}
+<main>
+  <body class="bg-light">
+    <div class="container">
+      <div class="py-5 text-center">
+        <h2>検査実績入力</h2>
+      </div>
+      <div class="row">
+        <div class="col-md-12 order-md-1">
+          <form class="needs-validation" novalidate>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="executeDate">実施日</label>
+                <h3><font color="green"><div id="executeDate">{{ execute_date }}</div></font></h3>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectOperator">担当者</label>
+                <select class="form-control" id="selectOperator" placeholder="" value="" required>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="inputCustomerName">ユーザー名</label>
+                <input type="text" class="form-control" id="inputCustomerName" placeholder="" value="" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectCustomer">ユーザー名選択</label>
+                <select class="form-control" id="selectCustomer">
+                </select>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="inputDescription">型番</label>
+                <input type="text" class="form-control" id="inputDescription" placeholder="" value="" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectDescription">型番選択</label>
+                <select class="form-control" id="selectDescription">
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm">
+                <label for="inputInspectQty">検査数</label>
+                <input type="text" class="form-control" id="inputInspectQty">
+              </div>
+              <div class="col-sm">
+                <label for="inputDefectiveQty">出荷不可数</label>
+                <input type="text" class="form-control" id="inputDefectiveQty">
+              </div>
+              <div class="col-sm">
+                <label for="inputShippingQty">出荷数</label>
+                <input type="text" class="form-control" id="inputShippingQty">
+              </div>
+              <div class="col-sm">
+                <label for="inputWorkingTime">所要時間</label>
+                <input type="text" class="form-control" id="inputWorkingTime" placeholder="分">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm">
+                <!--
+                <label for="buttonCSV"></label>
+                <button class="btn btn-success btn-lg btn-block" type="submit" id="buttonCSV">当日実績CSV出力</button>
+                -->
+              </div>
+              <div class="col-sm">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="buttonInput"> </label>
+                <button class="btn btn-primary btn-lg btn-block" type="submit" id="buttonInput">入力</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+      <br><br>
+    <div class=container>
+      <table class='table table-striped'>
+        <caption>検査実績</caption>
+        <thead class='thead-light'>
+          <tr>
+            <th scope="col">#</th>
+            <!--<th scope="col">検査日</th>-->
+            <th scope="col">担当者</th>
+            <th scope="col">ユーザー名</th>
+            <th scope="col">型番</th>
+            <th scope="col">検査数</th>
+            <th scope="col">不可数</th>
+            <th scope="col">出荷数</th>
+          </tr>
+        </thead>
+        <tbody id="inspectrecordrow">
+          {% for record in record_list %}
+            <tr>
+              <th scope="row">
+                <a href="/fixinspect/{{ record.id }}/">{{ forloop.counter }}</a>
+              </th>
+              <td>{{ record.operator.operator_name }}</td>
+              <td>{{ record.customer.customer_name }}</td>
+              <td>{{ record.item.description }}</td>
+              <td class="text-right">{{ record.inspect_qty }}</td>
+              <td class="text-right">{{ record.defective_qty }}</td>
+              <td class="text-right">{{ record.shipping_qty }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</main>
+
+<script src="{% static 'inputinspection.js' %}"></script>
+<script>
+$('#buttonInput').click(function () {
+  let executeDate = document.getElementById("executeDate").textContent;
+
+  let operatorList = document.getElementById("selectOperator");
+  let selectOperatorNum;
+  for(let i = 0; i < operatorList.options.length; i++){
+    if(operatorList.options[i].selected){
+      selectOperatorNum = i;
+    }
+  }
+
+  let customerList = document.getElementById("selectCustomer");
+  let selectCustomerNum;
+  for (let i = 0; i < customerList.options.length; i++) {
+    if (customerList.options[i].selected) {
+      selectCustomerNum = i;
+    }
+  }
+
+  let descriptionList = document.getElementById("selectDescription");
+  let selectDescriptionNum;
+  for (let i = 0; i < descriptionList.options.length; i++){
+    if (descriptionList.options[i].selected){
+      selectDescriptionNum = i;
+    }
+  }
+
+  let inspectQty = 0;
+  let inputInspectQty = document.getElementById("inputInspectQty").value;
+  if(Number.isInteger(Number(inputInspectQty))){
+    inspectQty = inputInspectQty;
+  }
+
+  let defectiveQty = 0;
+  let inputDefectiveQty = document.getElementById("inputDefectiveQty").value;
+  if(Number.isInteger(Number(inputDefectiveQty))){
+    defectiveQty = inputDefectiveQty;
+  }
+
+  let shippingQty = 0;
+  let inputShippingQty = document.getElementById("inputShippingQty").value;
+  if(Number.isInteger(Number(inputShippingQty))){
+    shippingQty = inputShippingQty;
+  }
+
+  let workingTime = 0;
+  let inputWorkingTime = document.getElementById("inputWorkingTime").value;
+  if(Number.isInteger(Number(inputWorkingTime))){
+    workingTime = inputWorkingTime;
+  }
+
+  if(!Number.isInteger(selectOperatorNum)){
+    alert("担当者を選択して下さい");
+  }else if(!Number.isInteger(selectCustomerNum)){
+    alert("ユーザー名を選択して下さい");
+  }else if(!Number.isInteger(selectDescriptionNum)){
+    alert("型番を選択して下さい");
+  }else if((inspectQty + shippingQty) == 0){
+    alert("検査数と出荷数の両方が入力されていません");
+  }else if(inputWorkingTime === ""){
+    alert("所要時間が入力されていません");
+  }else{
+    function getCookie(name){
+      let cookieValue = null;
+      if(document.cookie && document.cookie !== ''){
+        const cookies = document.cookie.split(';');
+        for(let i = 0; i < cookies.length; i++){
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')){
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    function inputInspection(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'POST',
+        url: '/api/v1/inspectrecord/',
+        headers: {'X-CSRFToken': csrftoken},
+        data: {
+          item: descriptionIdArr[selectDescriptionNum],
+          inspect_date: executeDate,
+          inspect_qty: inspectQty,
+          defective_qty: defectiveQty,
+          shipping_qty: shippingQty,
+          operator: operatorIdArr[selectOperatorNum],
+          customer: customerIdArr[selectCustomerNum]
+        },
+        datatype: 'json'
+      })
+      .done(function(){
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      });
+      return deferred.promise();
+    }
+
+    function inputWorking(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'POST',
+        url: '/api/v1/workingrecord/',
+        headers: {'X-CSRFToken': csrftoken},
+        data: {
+          working_date: executeDate,
+          working_contents: "出荷前検査",
+          working_minutes: workingTime,
+          operator: operatorIdArr[selectOperatorNum],
+          customer: customerIdArr[selectCustomerNum]
+        },
+        datatype: 'json'
+      })
+      .done(function(){
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      });
+      return deferred.promise();
+    }
+
+    function reload(){
+      let executeDate = document.getElementById("executeDate").textContent;
+      window.location.href = '/inputinspectionresult/' + executeDate + '/';
+    }
+
+    $.when(inputInspection(), inputWorking())
+    .then(reload, function(){alert("作業実績入力エラー");});
+  }
+});
+
+$('#buttonCSV').click(function(){
+  function retrieveData(){
+    let deferred = new $.Deferred;
+    let executeDate = document.getElementById("executeDate").textContent;
+    let operatorList = document.getElementById("selectOperator");
+    let selectOperatorNum;
+    for(let i = 0; i < operatorList.options.length; i++){
+      if(operatorList.options[i].selected){
+        selectOperatorNum = i;
+      }
+    }
+    let operatorid = operatorIdArr[selectOperatorNum];
+    $.ajax({
+      type: 'GET',
+      url: '/api/v1/inspectlist/?date__exact=' + executeDate + '&operator_id=' + operatorid, 
+      datatype: 'json'
+    })
+    .done(function(data){
+      deferred.resolve(data);
+    })
+    .fail(function(){
+      deferred.reject();
+    })
+    return deferred.promise();
+  }
+
+  retrieveData().then(function(data){
+    let csvContent = '';
+    let dt = new Date();
+    dt.setDate(dt.getDate());
+    let csvFilename = 'working_' + dt.toISOString().substring(0,19) + '.csv';
+    const bom = new Uint8Array([0xef, 0xbb, 0xbf]);
+    $.each(data, function(index, value){
+      let rowdata = '';
+      rowdata += value.inspect_date + ',';
+      rowdata += value.operator_name + ',';
+      rowdata += value.customer_name + ',';
+      rowdata += '出荷前検査' + ',';
+      rowdata += value.item_description + ',';
+      rowdata += value.inspect_qty + ',';
+      rowdata += value.defective_qty + ',';
+      rowdata += value.created_at.substring(5,10);
+      rowdata += '\r\n';
+      csvContent += rowdata;
+    })
+    const blob = new Blob([bom, csvContent], { type: 'text/csv'});
+    const dlURL = (window.URL || window.webkitURL).createObjectURL(blob);
+    const download = document.createElement("a");
+    download.href = dlURL;
+    download.download = csvFilename;
+    download.click();
+    (window.URL || window.webkitURL).revokeObjectURL(dlURL);
+  });
+});
+
+</script>
+
+{% endblock %}

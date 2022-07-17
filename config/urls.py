@@ -1,0 +1,40 @@
+from django.contrib import admin
+from django.urls import path, include
+from django.views.generic import TemplateView
+from accounts import views
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', TemplateView.as_view(template_name='index.html')),
+    path('authindex/', views.AuthenticateView.as_view()),
+    path('login/', TemplateView.as_view(template_name='login.html')),
+    path('logout/', views.LogoutView.as_view()),
+    path('api/v1/', include('apiv1.urls')),
+    path('apisys/', include('apisys.urls')),
+    path('api-auth/login/', views.LoginView.as_view()),
+    path('api-auth/logout/', views.LogoutView.as_view()),
+    path('inputinspectionresult/<str:executedate>/', views.InputInspectView.as_view(), name='input_result'),
+    path('inputinspectionschedule/<str:executedate>/', views.InputScheduleView.as_view(), name='input_schedule'),
+    path('fixinspect/<str:recordid>/', views.FixInspectView.as_view(), name='fix_inspect'),
+    path('fixinspectschedule/<str:recordid>/', views.FixInspectScheduleView.as_view(), name='fix_inspect_schedule'),
+    path('fixorderstatus/<str:recordid>/', views.FixOrderStatusView.as_view(), name='fix_order_status'),
+    path('inputorderstatus/<str:executedate>/', views.InputOrderView.as_view(), name='input_order'),
+    path('inputworkingrecord/<str:executedate>/', views.WorkingRecordView.as_view(), name='input_working'),
+    path('fixworkingrecord/<str:recordid>/', views.FixWorkingRecordView.as_view(), name='fix_working_record'),
+    path('inputevent/<str:executedate>', views.OtherEventsView.as_view(), name='input_event'),
+    path('fixevent/<str:recordid>/', views.FixOtherEventsView.as_view(), name='fix_event'),
+    path('additems/', TemplateView.as_view(template_name='inputform/additems.html')),
+    path('addcustomers/', TemplateView.as_view(template_name='inputform/addcustomers.html')),
+    path('showthisday/<str:executedate>/', views.ShowThisDayView.as_view(), name='show_thisday'),
+    path('aggregate/<str:executedate>/', views.AggregateView.as_view(), name='aggregate'),
+    path('matter-list/', TemplateView.as_view(template_name='matterform/show-matter-list.html')),
+    path('input-matter/', TemplateView.as_view(template_name='matterform/input-matters.html')),
+    path('fix-matter/<str:recordid>/', views.FixMattersView.as_view(), name='fix_matter'),
+    path('aggregate-this-month-inspect-minutes/', views.AggregateThisMonthInspectMinutesAPIView.as_view(),
+         name='this-month-inspect-minutes'),
+    path('aggregate-this-month-working/', views.AggregateThisMonthWorkingAPIView.as_view(), name='this-month-working'),
+    path('cross-tab-monthly-inspect/', views.CrossTabulationMonthlyInspectAPIView.as_view(),
+         name='cross-monthly-inspect'),
+    path('cross-tab-monthly-shipping/', views.CrossTabulationMonthlyShippingAPIView.as_view(),
+         name='cross-monthly-shipping'),
+]

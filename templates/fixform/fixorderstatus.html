@@ -1,0 +1,384 @@
+{% extends "basefix.html" %}
+{% load static %}
+
+<!-- タイトル -->
+{% block title %}出荷予定修正{% endblock %}
+
+<!-- メインコンテンツ -->
+{% block main %}
+<main>
+  <body class="bg-light">
+    <div class="container">
+      <div class="py-5 text-center">
+        <h2>当日出荷予定分出荷登録</h2>
+      </div>
+      <div class="row">
+        <div class="col-md-12 order-md-1">
+          <form>
+            <div class="row">
+              <div class="col-sm">
+                <lable for="inputShippingQty">出荷数: <font color="green">{{ inspect_qty }}</font></label>
+                <input type="text" class="form-control" id="inputShippingQty" placeholder="" value="">
+              </div>
+              <div class="col-sm">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="buttonShipping"> </label>
+                <button class="btn btn-primary btn-lg btn-block" type="submit" id="buttonShipping">出荷入力</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="py-5 text-center">
+        <h2>出荷予定修正</h2>
+      </div>
+      <div class="row">
+        <div class="col-md-12 order-md-1">
+          <form>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="executeDate">出荷予定日: <font color="green">{{ inspect_date }}</font></label><br>
+                <input type="text" id="executeDate">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="inputCustomerName">ユーザー名: <font color="green">{{ customer_name }}</font></label>
+                <input type="text" class="form-control" id="inputCustomerName" placeholder="" value="" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectCustomer">ユーザー名選択</label>
+                <select class="form-control" id="selectCustomer">
+                </select>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="inputDescription">型番: <font color="green">{{ description }}</font></label>
+                <input type="text" class="form-control" id="inputDescription" placeholder="" value="" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectDescription">型番選択</label>
+                <select class="form-control" id="selectDescription">
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm">
+                <label for="inputInspectQty">出荷予定数: <font color="green">{{ inspect_qty }}</font></label>
+                <input type="text" class="form-control" id="inputInspectQty">
+              </div>
+              <div class="col-sm">
+              </div>
+              <div class="col-sm">
+              </div>
+              <div class="col-sm">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm">
+                <label for="buttonDelete"></label>
+                <button class="btn-danger btn-lg btn-block" type="submit" id="buttonDelete">削除</button>
+              </div>
+              <div class="col-sm">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="buttonInput"> </label>
+                <button class="btn btn-warning btn-lg btn-block" type="submit" id="buttonInput">修正</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <br><br>
+    <div class=container>
+      <table class='table table-striped'>
+        <thead class='thead-light'>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">出荷予定日</th>
+            <th scope="col">ユーザー名</th>
+            <th scope="col">型番</th>
+            <th scope="col">出荷予定数</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><a href="/fixorderstatus/{{ record_id }}/">1</a></th>
+            <td>{{ inspect_date }}</td>
+            <td>{{ customer_name }}</td>
+            <td>{{ description }}</td>
+            <td class="text-right">{{ inspect_qty }}</td>
+            </tf>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row">
+      <input type="hidden" id="recordDate" value={{ inspect_date }}>
+      <input type="hidden" id="recordId" value={{ record_id }}>
+      <input type="hidden" id="itemNumber" value={{ item_number }}>
+      <input type="hidden" id="customerId" value={{ customer_id }}>
+      <input type="hidden" id="customerName" value={{ customer_name }}>
+      <input type="hidden" id="description" value={{ description }}>
+      <input type="hidden" id="recordInspectQty" value={{ inspect_qty }}>
+      <input type="hidden" id="itemId" value={{ item_id }}>
+    </div>
+  </body>
+</main>
+
+<script src="{% static 'fixorderstatus.js' %}"></script>
+<script>
+$(function(){
+  $.datepicker.setDefaults($.datepicker.regional["ja"]);
+  $("#executeDate").datepicker({
+    dateFormat: "yy-mm-dd"
+  });
+});
+
+$('#buttonInput').click(function () {
+  var updateList = {};
+  // 検査日
+  var executeDate = document.getElementById("executeDate").value;
+  const regex = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+  if(regex.test(executeDate)){
+    updateList.scheduled_shipping_date = executeDate;
+  }
+
+  // ユーザー名
+  var customerList = document.getElementById("selectCustomer");
+  var customerId = document.getElementById("customerId").value;
+  var selectCustomerNum;
+  for (var i = 0; i < customerList.options.length; i++) {
+    if (customerList.options[i].selected) {
+      selectCustomerNum = i;
+    }
+  }
+  if(Number.isInteger(selectCustomerNum)){
+    if(customerIdArr[selectCustomerNum] !== customerId){
+      updateList.customer = customerIdArr[selectCustomerNum];
+    }
+  }
+
+  // 型番
+  var descriptionList = document.getElementById("selectDescription");
+  var itemNumber = Number(document.getElementById("itemNumber").value);
+  console.log(itemNumber);
+  var selectDescriptionNum;
+  for (var i = 0; i < descriptionList.options.length; i++){
+    if (descriptionList.options[i].selected){
+      selectDescriptionNum = i;
+    }
+  }
+  if(Number.isInteger(selectDescriptionNum)){
+    if(descriptionIdArr[selectDescriptionNum] !== itemNumber){
+      updateList.item = descriptionIdArr[selectDescriptionNum];
+    }
+  }
+
+  // 検査数
+  var inspectQty = 0;
+  var inputInspectQty = document.getElementById("inputInspectQty").value;
+  var recordInspectQty = document.getElementById("recordInspectQty").value;
+  if(inputInspectQty && Number.isInteger(Number(inputInspectQty))){
+    inspectQty = Number(inputInspectQty);
+    if(inspectQty !== Number(recordInspectQty)){
+      updateList.order_qty = inspectQty;
+    }
+  }
+
+
+  $.each(updateList, function(key, value){
+    console.log(key + " : " + value);
+  });
+  
+
+  if(Object.keys(updateList).length === 0){
+    alert("修正する項目はありません");
+  }else{
+    function getCookie(name){
+      let cookieValue = null;
+      if(document.cookie && document.cookie !== ''){
+        const cookies = document.cookie.split(';');
+        for(let i = 0; i < cookies.length; i++){
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')){
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+    var recordId = document.getElementById("recordId").value;
+    $.ajax({
+      type: 'PATCH',
+      url: '/api/v1/inputorder/' + recordId + '/',
+      headers: {'X-CSRFToken': csrftoken},
+      data: updateList,
+      datatype: 'json',
+      success: function(data, statusText, jqXHR){
+        alert("修正しました");
+        window.location.href = "/fixorderstatus/" + recordId + "/";
+      },
+      error: function(jqXHR, statusText, error){
+        console.log(jqXHR.status);
+        alert("error!(検査実績) " + jqXHR.status);
+      }
+    });
+  }
+});
+
+$('#buttonDelete').click(function(){
+  var recordId = document.getElementById("recordId").value;
+  var recordDate = document.getElementById("recordDate").value;
+  var customerName = document.getElementById("customerName").value;
+  var description = document.getElementById("description").value;
+  var inspectQty = document.getElementById("recordInspectQty").value;
+  var text = '';
+  text += '出荷予定日：' + recordDate + '\n';
+  text += 'ユーザー名：' + customerName + '\n';
+  text += '型番：' + description + '\n'; 
+  text += '出荷予定数：' + inspectQty + '\n';
+  text += 'この記録を削除しますか？';
+  var result = window.confirm(text);
+  if(result){
+    function getCookie(name){
+      let cookieValue = null;
+      if(document.cookie && document.cookie !== ''){
+        const cookies = document.cookie.split(';');
+        for(let i = 0; i < cookies.length; i++){
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')){
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+    $.ajax({
+      type: 'DELETE',
+      url: '/api/v1/inputorder/' + recordId + '/',
+      headers: {'X-CSRFToken': csrftoken},
+      datatype: 'json',
+      success: function(data, statusText, jqXHR){
+        alert("1件の記録を削除しました");
+        window.location.href = '/';
+      },
+      error: function(jqXHR, statusText, error){
+        console.log(jqXHR.status);
+        alert("error! 削除できませんでした");
+      }
+    });
+  }else{
+    console.log("canceled");
+  }
+});
+
+$('#buttonShipping').click(function(){
+  let recordDate = document.getElementById("recordDate").value;
+  let execDate = recordDate.replace('年', '-');
+  execDate = execDate.replace('月', '-');
+  execDate = execDate.replace('日', '');
+  let itemNumber = document.getElementById("itemNumber").value;
+  let recordId = document.getElementById("recordId").value;
+  let customerName = document.getElementById("customerName").value;
+  let description = document.getElementById("description").value;
+  let recordInspectQty = document.getElementById("recordInspectQty").value;
+  let itemId = document.getElementById("itemId").value;
+  let customerId = document.getElementById("customerId").value;
+
+  function getCookie(name){
+    let cookieValue = null;
+    if(document.cookie && document.cookie !== ''){
+      const cookies = document.cookie.split(';');
+      for(let i = 0; i < cookies.length; i++){
+        const cookie = cookies[i].trim();
+        // Does this cookie string begin with the name we want?
+        if (cookie.substring(0, name.length + 1) === (name + '=')){
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  function inputShipping(){
+    let shippingQty = Number(recordInspectQty);
+    let inputShippingQty = document.getElementById("inputShippingQty").value;
+    if(inputShippingQty && Number.isInteger(Number(inputShippingQty))){
+      shippingQty = Number(inputShippingQty);
+    }
+    let deferred = new $.Deferred;
+    $.ajax({
+      type: 'POST',
+      url: '/api/v1/inspectrecord/',
+      headers: {'X-CSRFToken': csrftoken},
+      data: {
+        item: itemId, 
+        inspect_date: execDate, 
+        inspect_qty: 0, 
+        defective_qty: 0, 
+        shipping_qty: shippingQty,
+        operator: 1, 
+        customer: customerId 
+      },
+      datatype: 'json'
+    })
+    .done(function(){
+      deferred.resolve();
+    })
+    .fail(function(){
+      deferred.reject();
+    });
+    return deferred.promise();
+  }
+
+  function deleteOrderStatus(){
+    let deferred = new $.Deferred;
+    $.ajax({
+      type: 'DELETE',
+      url: '/api/v1/inputorder/' + recordId + '/',
+      headers: {'X-CSRFToken': csrftoken},
+      datatype: 'json'
+    })
+    .done(function(){
+      deferred.resolve();
+    })
+    .fail(function(){
+      deferred.reject();
+    });
+    return deferred.promise();
+  }
+
+  $.when(
+    inputShipping(),
+    deleteOrderStatus()
+  ).then(
+    function(){
+      // alert("登録完了");
+      window.location.href = '/'
+    }
+    ,
+    function(){
+      alert("登録エラー");
+    }
+  )
+
+});
+
+</script>
+
+{% endblock %}

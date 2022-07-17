@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% load static %}
+
+<!-- タイトル -->
+{% block title %}イベント入力{% endblock %}
+
+<!-- メインコンテンツ -->
+{% block main %}
+<main>
+  <body class="bg-light">
+    <div class="container">
+      <div class="py-5 text-center">
+        <h2>イベント入力</h2>
+      </div>
+      <div class="row">
+        <div class="col-md-12 order-md-1">
+          <form class="needs-validation" novalidate>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="executeDate">実施日</label>
+                <h3><font color="green"><div id="executeDate">{{ execute_date }}</div></font></h3>
+              </div>
+              <div class="col-md-6 mb-3">
+                <!--
+                <label for="selectOperator">担当者</label>
+                <select class="form-control" id="selectOperator" placeholder="" value="" required>
+                </select>
+                -->
+              </div>
+            </div>
+
+            <div class="row">
+              <!--
+              <div class="col-md-6 mb-3">
+                <label for="inputCustomerName">ユーザー名</label>
+                <input type="text" class="form-control" id="inputCustomerName" placeholder="" value="" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectCustomer">ユーザー名選択</label>
+                <select class="form-control" id="selectCustomer">
+                </select>
+              </div>
+              -->
+
+              <!--
+              <div class="col-md-6 mb-3">
+                <label for="inputContents">イベント内容</label>
+                <input type="text" class="form-control" id="inputContents">
+              </div>
+              <div class="col-sm">
+              </div>
+              <div class="col-sm">
+              -->
+                <!--
+                <label for="inputWorkingTime">所要時間</label>
+                <input type="text" class="form-control" id="inputWorkingTime" placeholder="分">
+                </select>
+              </div>
+              -->
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="inputContents">イベント内容</label>
+                <input type="text" class="form-control" id="inputContents">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="buttonInput"> </label>
+                <button class="btn btn-primary btn-lg btn-block" type="submit" id="buttonInput">入力</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+      <br><br>
+    <div class=container>
+      <table class='table table-striped'>
+        <caption>イベント</caption>
+        <thead class='thead-light'>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">実施日</th>
+            <th scope="col">イベント</th>
+          </tr>
+        </thead>
+        <tbody id="inspectrecordraw">
+        </tbody>
+      </table>
+    </div>
+  </body>
+</main>
+
+<!--
+<script src="{% static 'inputworking.js' %}"></script>
+-->
+<script>
+$('#buttonInput').click(function () {
+  var executeDate = document.getElementById("executeDate").textContent;
+  var inputContents = document.getElementById("inputContents").value
+
+  if(inputContents === ""){
+    alert("イベント内容を記入してください。");
+  }else{
+    // alert("ok");
+    function getCookie(name){
+      let cookieValue = null;
+      if(document.cookie && document.cookie !== ''){
+        const cookies = document.cookie.split(';');
+        for(let i = 0; i < cookies.length; i++){
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')){
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    $.ajax({
+      type: 'POST',
+      url: '/api/v1/otherevents/',
+      headers: {'X-CSRFToken': csrftoken},
+      data:{
+       event_date: executeDate, 
+       event_title: inputContents,
+      },
+      datatype: 'json',
+      success: function(data, statusText, jqXHR){
+        alert("1件のデータを入力しました。");
+      },
+      error: function(jqXHR, statusText, error){
+        alert("error!(作業実績) " + jqXHR.status);
+      }
+    })
+    // alert("入力完了");
+  }
+});
+
+$(document).ready(function(){
+  var dt = new Date();
+  dt.setDate(dt.getDate() - 7);
+  var startDate = dt.toISOString().substring(0,10);
+  $.ajax({
+    type: 'GET',
+    url: '/api/v1/otherevents/?latest__gte=' + startDate,
+    datatype: 'json',
+    success: function(data, statusText, jqXHR){
+      let tr = '';
+      $.each(data, function(index, value){
+        tr += '<tr><th scope="row">'; 
+        tr += '<a href="/fixevent/' + value.id + '/">';
+        tr += (index + 1);
+        tr += '</a></th>';
+        tr += '<td>' + value.event_date + '</td>';
+        tr += '<td>' + value.event_title + '</td></tr>';
+      })
+      $('#inspectrecordraw').append(tr);
+    },
+    error: function(jqXHR, statusText, error){
+
+    }
+  });
+
+});
+</script>
+
+{% endblock %}

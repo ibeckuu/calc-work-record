@@ -1,0 +1,646 @@
+{% extends "base.html" %}
+{% load static %}
+
+<!-- タイトル -->
+{% block title %}実績集計{% endblock %}
+
+<!-- メインコンテンツ -->
+{% block main %}
+<main>
+  <body class="bg-light">
+    <div class="container">
+      <div class="py-5 text-center">
+        <h2>実績集計</h2>
+      </div>
+      <div class="row">
+        <div class="col-md-12 order-md-1">
+          <label for="select_month">年月選択</label><br>
+          <input type="month" class="form-controll" id="select_month">
+        </div>
+      </div><br>
+      <p>CSV出力</p>
+      <div class="row">
+        <div class="col-sm">
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="btnThisMonthInspect">当月検査すべて</button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="btnThisMonthWorking">当月作業すべて</button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="btnInspectThisMonthAggregate">当月作業</button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="btnAggregateThisMonthInspectMinutes">当月検査時間集計</button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="btnAggregateThisMonthWorkingMinutes">当月作業実績集計</button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="btnCrossTabulationMonthlyInspect">月別検査実績集計</button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="btnCrossTabulationMonthlyShipping">月別出荷実績集計</button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="btnInspectThisYear">当年検査実績</button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="btnShippingThisYear">当年出荷実績</button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br>
+      <div class="py-5 text-center">
+        <h2>DBデータバックアップ用出力</h2>
+      </div>
+      <p>CSV出力</p>
+      <div class="row">
+        <div class="col-sm">
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="btnInspectRecordOut">inspect_record</button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="btnItemOut">item</button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="btnCustomerOut">customer</button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="btnWorkingRecordOut">working_record</button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+    </div>
+  </body>
+</main>
+
+<script>
+
+  let csvData = new Object();
+  let tableName = '';
+  let rowHeader = '';
+
+  // CSV出力
+  function csvOut(){
+      let deferred = new $.Deferred;
+      let csvContent = '';
+      if(rowHeader !== ''){
+          csvContent += rowHeader
+          csvContent +='\r\n';
+      }
+      let dt = new Date();
+      dt.setDate(dt.getDate());
+      let csvFileName = tableName + dt.toISOString().substring(0,19) + '.csv';
+      const bom = new Uint8Array([0xef, 0xbb, 0xbf]);
+      $.each(csvData, function(index, value){
+          let rowData = '';
+          $.each(value, function(idx, val){
+            rowData += val;
+            rowData += ',';
+          })
+          csvContent += rowData.replace(/,$/, '\r\n');
+      });
+      const blob = new Blob([bom, csvContent], { type: 'text/csv'});
+      const dlURL = (window.URL || window.webkitURL).createObjectURL(blob);
+      const download = document.createElement("a");
+      download.href = dlURL;
+      download.download = csvFileName;
+      download.click();
+      (window.URL || window.webkitURL).revokeObjectURL(dlURL);
+      deferred.resolve();
+      return deferred.promise();
+  }
+
+  // Deferred を返す Fuction の起動用
+  function executeFunc(){
+    let deferred = new $.Deferred;
+    deferred.resolve();
+    return deferred.promise();
+  }
+
+  // 年月を受け取り、翌月の年を返す
+  function calcNextMonthYear(yearMonth){
+    const regex = /(\d{4})-(\d{2})/;
+    const ym = yearMonth.match(regex);
+    let year = ym[1];
+    let month = ym[2];
+    if(month === '12'){
+      return Number(year) + 1;
+    }else{
+      return Number(year);
+    }
+  }
+
+  // 年月を受け取り、翌月の月を返す
+  function calcNextMonth(yearMonth){
+    const regex = /(\d{4})-(\d{2})/;
+    const ym = yearMonth.match(regex);
+    let month = ym[2];
+    if(month === '12'){
+      return 1;
+    }else{
+      return Number(month) + 1;
+    }
+  }
+
+  // 年月を受け取り、翌月の1日をYYYY-MM-DDのフォーマットで返す
+  function calcNextYearMonth1st(yearMonth){
+    let nextMonthYear = 0;
+    nextMonthYear = calcNextMonthYear(yearMonth);
+    let nextMonth = 0;
+    let nextMonth0plus = "";
+    nextMonth = calcNextMonth(yearMonth);
+    nextMonth0plus = "0" + String(nextMonth);
+    nextMonth0plus = nextMonth0plus.substring(nextMonth0plus.length - 2);
+    return String(nextMonthYear) + '-' + nextMonth0plus + '-01';
+  }
+
+  $('#btnThisMonthInspect').click(function () {
+
+    let yearMonth = document.getElementById("select_month").value
+    if(yearMonth === ""){
+      alert("年月を選択してください");
+      return 0;
+    }
+    let nextMonth1st = "";
+    nextMonth1st = calcNextYearMonth1st(yearMonth);
+    yearMonth1st = yearMonth + '-01';
+
+    function retrieveDataMonthly(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'GET',
+        url: '/api/v1/inspect-monthly/?date__gte=' + yearMonth1st + '&date__lt=' + nextMonth1st + '&inspect__gt=0',
+        datatype: 'json'
+      })
+      .done(function(data){
+        csvData = data;
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      });
+      return deferred.promise();
+    }
+
+    tableName = "当月検査全て";
+    rowHeader = "id,型番,担当,ユーザー名,district_id,メーカーid,通常型番,アイテム番号,検査日,検査数,出荷不可数,出荷数,";
+    rowHeader += "created_at,item_id,operator_id,customer_id";
+    retrieveDataMonthly()
+    .then(
+      csvOut,
+      function(){alert('データ取得エラー')}
+    )
+  });
+
+  $('#btnThisMonthWorking').click(function(){
+
+    let yearMonth = document.getElementById("select_month").value
+    if(yearMonth === ""){
+      alert("年月を選択してください");
+      return 0;
+    }
+    let nextMonth1st = "";
+    nextMonth1st = calcNextYearMonth1st(yearMonth);
+    yearMonth1st = yearMonth + '-01';
+
+    function retrieveData(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'GET',
+        url: '/api/v1/workingrecord/?date__gte=' + yearMonth1st + '&date__lt=' + nextMonth1st + '&working_minutes__gt=0', 
+        datatype: 'json'
+      })
+      .done(function(data){
+        csvData = data;
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      })
+      return deferred.promise();
+    }
+
+    tableName = "working_record_";
+    rowHeader = "id,operator,customer,district_code,working_date,contents,working_minutes";
+    rowHeader += ",created_at,operator_id,customer_id";
+    retrieveData()
+    .then(
+      csvOut,
+      function(){alert('データ取得エラー')}
+    )
+  })
+
+  $('#btnAggregateThisMonthInspectMinutes').click(function(){
+
+    let yearMonth = document.getElementById("select_month").value
+    if(yearMonth === ""){
+      alert("年月を選択してください");
+      return 0;
+    }
+    let nextMonth1st = "";
+    nextMonth1st = calcNextYearMonth1st(yearMonth);
+    yearMonth1st = yearMonth + '-01';
+
+    function retrieveData(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'GET',
+        url: '/aggregate-this-month-inspect-minutes/?start_date=' + yearMonth1st + '&end_date_next=' + nextMonth1st, 
+        datatype: 'json'
+      })
+      .done(function(data){
+        csvData = data;
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      })
+      return deferred.promise();
+    }
+
+    tableName = "inspect_minutes_aggregate";
+    rowHeader = "operator_id,district,ユーザー名,アイテム数,検査数,出荷不可数,時間";
+    retrieveData()
+    .then(
+      csvOut,
+      function(){alert('データ取得エラー')}
+    )
+  })
+
+  $('#btnAggregateThisMonthWorkingMinutes').click(function(){
+
+    let yearMonth = document.getElementById("select_month").value
+    if(yearMonth === ""){
+      alert("年月を選択してください");
+      return 0;
+    }
+    let nextMonth1st = "";
+    nextMonth1st = calcNextYearMonth1st(yearMonth);
+    yearMonth1st = yearMonth + '-01';
+
+    function retrieveData(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'GET',
+        url: '/aggregate-this-month-working/?start_date=' + yearMonth1st + '&end_date_next=' + nextMonth1st, 
+        datatype: 'json'
+      })
+      .done(function(data){
+        csvData = data;
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      })
+      return deferred.promise();
+    }
+
+    tableName = "当月作業時間集計_";
+    rowHeader = "operator_id,district_id,customer_name,total_minutes";
+    retrieveData()
+    .then(
+      csvOut,
+      function(){alert('データ取得エラー')}
+    )
+  })
+
+  $('#btnCrossTabulationMonthlyInspect').click(function () {
+
+    let yearMonth = document.getElementById("select_month").value
+    if(yearMonth === ""){
+      alert("年月を選択してください");
+      return 0;
+    }
+    let nextMonth1st = "";
+    nextMonth1st = calcNextYearMonth1st(yearMonth);
+    yearMonth1st = yearMonth + '-01';
+
+    function retrieveDataYearly(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'GET',
+        url: '/cross-tab-monthly-inspect/?start_date=' + yearMonth + '-01&end_date_next=' + nextMonth1st,
+        datatype: 'json'
+      })
+      .done(function(data){
+        tableName = 'cross_tab_inspect_';
+        rowHeader = 'item_id,地区コード,ユーザー名,型番,担当,1月検査,1月出荷不可,2月検査,2月出荷不可,3月検査,3月出荷不可,4月検査,4月出荷不可,'
+        rowHeader += '5月検査,5月出荷不可,6月検査,6月出荷不可,7月検査,7月出荷不可,8月検査,8月出荷不可,'
+        rowHeader += '9月検査,9月出荷不可,10月検査,10月出荷不可,11月検査,11月出荷不可,12月検査,12月出荷不可';
+        csvData = data;
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      });
+      return deferred.promise();
+    }
+
+    retrieveDataYearly()
+    .then(
+      csvOut,
+      function(){alert('データ取得エラー')}
+    )
+  });
+
+  $('#btnCrossTabulationMonthlyShipping').click(function () {
+
+    let yearMonth = document.getElementById("select_month").value
+    if(yearMonth === ""){
+      alert("年月を選択してください");
+      return 0;
+    }
+    let nextMonth1st = "";
+    nextMonth1st = calcNextYearMonth1st(yearMonth);
+    yearMonth1st = yearMonth + '-01';
+
+    function retrieveDataYearly(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'GET',
+        url: '/cross-tab-monthly-shipping/?start_date=' + yearMonth + '-01&end_date_next=' + nextMonth1st,
+        datatype: 'json'
+      })
+      .done(function(data){
+        tableName = 'cross_tab_shipping_';
+        rowHeader = '地区コード,ユーザー名,型番,1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12月';
+        csvData = data;
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      });
+      return deferred.promise();
+    }
+
+    retrieveDataYearly()
+    .then(
+      csvOut,
+      function(){alert('データ取得エラー')}
+    )
+  });
+
+  $('#btnInspectThisYear').click(function(){
+
+    let yearMonth = document.getElementById("select_month").value
+    if(yearMonth === ""){
+      alert("年月を選択してください");
+      return 0;
+    }
+    let year = "";
+    year = yearMonth.substring(0,4);
+    nextYear = String(Number(year) + 1);
+    function retrieveData(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'GET',
+        url: '/api/v1/inspectlist/?date__gte=' + year + '-01-01&date__lt=' + nextYear + '-01-01&inspect__gt=0',
+        datatype: 'json'
+      })
+      .done(function(data){
+        csvData = data;
+        tableName = 'inspect_' + year + '_all_';
+        rowHeader = 'id,description,operator,customer,district_code,producer_id,ordinary_description,item_number,';
+        rowHeader += 'inspect_date,inspect_qty,defective_qty,shipping_qty,created_at,item_id,operator_id,customer_id';
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      })
+      return deferred.promise();
+    }
+
+    executeFunc()
+    .then(
+      retrieveData,
+      function(){alert('エラー');}
+    )
+    .then(
+      csvOut,
+      function(){alert('データ取得エラー');}
+    )
+
+  })
+
+  $('#btnShippingThisYear').click(function(){
+
+    let yearMonth = document.getElementById("select_month").value
+    if(yearMonth === ""){
+      alert("年月を選択してください");
+      return 0;
+    }
+    let year = "";
+    year = yearMonth.substring(0,4);
+    nextYear = String(Number(year) + 1);
+    function retrieveData(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'GET',
+        url: '/api/v1/shippingyearly/?date__gte=' + year + '-01-01&date__lt=' + nextYear + '-01-01&shipping__gt=0',
+        datatype: 'json'
+      })
+      .done(function(data){
+        csvData = data;
+        tableName = 'shipping_' + year + '_all_';
+        rowHeader = 'id,description,operator,customer,district_code,producer_id,ordinary_description,item_number,';
+        rowHeader += 'inspect_date,inspect_qty,defective_qty,shipping_qty,created_at,item_id,operator_id,customer_id';
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      })
+      return deferred.promise();
+    }
+
+    executeFunc()
+    .then(
+      retrieveData,
+      function(){alert('エラー');}
+    )
+    .then(
+      csvOut,
+      function(){alert('データ取得エラー');}
+    )
+
+  })
+
+  $('#btnInspectRecordOut').click(function(){
+    function retrieveData(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'GET',
+        url: '/api/v1/inspectlist/',
+        datatype: 'json'
+      })
+      .done(function(data){
+        csvData = data;
+        tableName = 'inspect_record'
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      })
+      return deferred.promise();
+    }
+
+    executeFunc()
+    .then(
+      retrieveData,
+      function(){alert('エラー');}
+    )
+    .then(
+      csvOut,
+      function(){alert('データ取得エラー');}
+    )
+  });
+
+  $('#btnWorkingRecordOut').click(function(){
+    function retrieveData(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'GET',
+        url: '/api/v1/workingrecord/',
+        datatype: 'json'
+      })
+      .done(function(data){
+        csvData = data;
+        tableName = 'working_record'
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      })
+      return deferred.promise();
+    }
+
+    executeFunc()
+    .then(
+      retrieveData,
+      function(){alert('エラー');}
+    )
+    .then(
+      csvOut,
+      function(){alert('データ取得エラー');}
+    )
+  });
+
+  $('#btnItemOut').click(function(){
+    function retrieveData(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'GET',
+        url: '/api/v1/item/',
+        datatype: 'json'
+      })
+      .done(function(data){
+        csvData = data;
+        tableName = 'item'
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      })
+      return deferred.promise();
+    }
+
+    executeFunc()
+    .then(
+      retrieveData,
+      function(){alert('エラー');}
+    )
+    .then(
+      csvOut,
+      function(){alert('データ取得エラー');}
+    )
+  });
+
+  $('#btnCustomerOut').click(function(){
+    function retrieveData(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'GET',
+        url: '/api/v1/customer/',
+        datatype: 'json'
+      })
+      .done(function(data){
+        csvData = data;
+        tableName = 'customer'
+        deferred.resolve();
+      })
+      .fail(function(){
+        deferred.reject();
+      })
+      return deferred.promise();
+    }
+
+    executeFunc()
+    .then(
+      retrieveData,
+      function(){alert('エラー');}
+    )
+    .then(
+      csvOut,
+      function(){alert('データ取得エラー');}
+    )
+  });
+
+</script>
+
+{% endblock %}

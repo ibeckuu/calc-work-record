@@ -1,0 +1,389 @@
+{% extends "basematter.html" %}
+{% load static %}
+
+<!-- タイトル -->
+{% block title %}Complaint Sheet 案件入力{% endblock %}
+
+<!-- メインコンテンツ -->
+{% block main %}
+<main>
+  <body class="bg-light">
+    <div class="container">
+      <div class="text-center mt-2 mb-3">
+        <h3>Complaint Sheet 案件入力</h3>
+      </div>
+      <div class="row">
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputSheetMatterId">Complaint Sheet No.</label>
+          <input type="text" class="form-control" id="inputSheetMatterId">
+        </div>
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputEntryDate">受付日</label>
+          <input type="text" class="form-control" id="inputEntryDate">
+        </div>
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputSalesPerson">営業担当</label>
+          <input type="text" class="form-control" id="inputSalesPerson">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputCustomerName">ユーザー名</label>
+          <input type="text" class="form-control" id="inputCustomerName">
+        </div>
+        <div class="col-6 col-md-3 mb-2">
+          <label for="selectCustomer">ユーザー名選択</label>
+          <select class="form-control" id="selectCustomer">
+          </select>
+        </div>
+        <div class="col-6 col-md-3 mb-2">
+          <label for="buttonAddCustomer"></label>
+          <button class="btn btn-success btn-lg btn-block" type="submit" id="buttonAddCustomer">ユーザー登録</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputItemNumber">アイテム番号</label>
+          <input type="text" class="form-control" id="inputItemNumber">
+        </div>
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputItemDescription">型番</label>
+          <input type="text" class="form-control" id="inputItemDescription">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputItemReceiveDate">受領日</label>
+          <input type="text" class="form-control" id="inputItemReceiveDate">
+        </div>
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputFirstActionDate">初動日</label>
+          <input type="text" class="form-control" id="inputFirstActionDate">
+        </div>
+        <div class="col-6 col-md-6 mb-2">
+          <label for="inputFirstAction">初動内容</label>
+          <input type="text" class="form-control" id="inputFirstAction">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 col-md-3 mb-2">
+          <label for="selectInspectItem">出荷前検査要・不要</label>
+          <select class="form-control" id="selectInspectItem">
+            <option>出荷前検査不要</option>
+            <option>出荷前検査要</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-3 mb-2">
+          <label for="selectRegistered">出荷前検査登録</label>
+          <select class="form-control" id="selectRegistered">
+            <option>登録不要</option>
+            <option>登録済み</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-3 mb-2">
+          <label for="selectSampleSupplied">サンプル提出</label>
+          <select class="form-control" id="selectSampleSupplied">
+            <option>サンプル提出無し</option>
+            <option>サンプル提出有り</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 col-md-6 mb-2">
+          <label for="inputSampleHandling">サンプル処理</label>
+          <input type="text" class="form-control" id="inputSampleHandling">
+        </div>
+        <div class="col-6 col-md-6 mb-2">
+          <label for="inputReturnHandling">返品処理</label>
+          <input type="text" class="form-control" id="inputReturnHandling">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputComplaintNumber">Complaint No.</label>
+          <input type="text" class="form-control" id="inputComplaintNumber">
+        </div>
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputComplaintOpenDate">Complaint オープン日</label>
+          <input type="text" class="form-control" id="inputComplaintOpenDate">
+        </div>
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputLtdShippingDate">LTD 発送日</label>
+          <input type="text" class="form-control" id="inputLtdShippingDate">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputLtdAnswerDate">LTD 回答日</label>
+          <input type="text" class="form-control" id="inputLtdAnswerDate">
+        </div>
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputLtdAnswer">LTD 回答</label>
+          <input type="text" class="form-control" id="inputLtdAnswer">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 col-md-3 mb-2">
+          <label for="inputClosedDate">完了日</label>
+          <input type="text" class="form-control" id="inputClosedDate">
+        </div>
+        <div class="col-6 col-md-3 mb-2">
+          <label for="selectClosed">完了</label>
+          <select class="form-control" id="selectClosed">
+            <option>未完了</option>
+            <option>完了</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-6 mb-2">
+          <label for="inputRemark">処理</label>
+          <input type="text" class="form-control" id="inputRemark">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 mb-3">
+        </div>
+        <div class="col-6 mb-3">
+          <label for="buttonInput"></label>
+          <button class="btn btn-primary btn-lg btn-block" type="submit" id="buttonInput">入力</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</main>
+
+<script>
+var customerIdArr = [];
+var input = document.getElementById('inputCustomerName');
+input.oninput = handleInput;
+function handleInput(e) {
+  $.ajax({
+    type: 'GET',
+    url: '/api/v1/customer/?name__contains=' + e.target.value + '&delete__exact=False',
+    success: function (data, statusText, jqXHR) {
+      customerIdArr.length = 0;
+      $('#selectCustomer').empty();
+      $.each(data, function (index, value) {
+        var selectItem = '<option>' + value.customer_name + '</option>';
+        $(selectItem).appendTo('#selectCustomer');
+        customerIdArr.push(value.id);
+      })
+    }
+  })
+}
+
+$(function(){
+  $.datepicker.setDefaults($.datepicker.regional["ja"]);
+  $("#inputEntryDate").datepicker({
+    dateFormat: "yy-mm-dd"
+  });
+});
+
+$(function(){
+  $.datepicker.setDefaults($.datepicker.regional["ja"]);
+  $("#inputItemReceiveDate").datepicker({
+    dateFormat: "yy-mm-dd"
+  });
+});
+
+$(function(){
+  $.datepicker.setDefaults($.datepicker.regional["ja"]);
+  $("#inputFirstActionDate").datepicker({
+    dateFormat: "yy-mm-dd"
+  });
+});
+
+$(function(){
+  $.datepicker.setDefaults($.datepicker.regional["ja"]);
+  $("#inputComplaintOpenDate").datepicker({
+    dateFormat: "yy-mm-dd"
+  });
+});
+
+$(function(){
+  $.datepicker.setDefaults($.datepicker.regional["ja"]);
+  $("#inputLtdShippingDate").datepicker({
+    dateFormat: "yy-mm-dd"
+  });
+});
+
+$(function(){
+  $.datepicker.setDefaults($.datepicker.regional["ja"]);
+  $("#inputLtdAnswerDate").datepicker({
+    dateFormat: "yy-mm-dd"
+  });
+});
+
+$(function(){
+  $.datepicker.setDefaults($.datepicker.regional["ja"]);
+  $("#inputClosedDate").datepicker({
+    dateFormat: "yy-mm-dd"
+  });
+});
+
+$('#buttonInput').click(function () {
+
+  let customerList = document.getElementById("selectCustomer");
+  let selectCustomerNum;
+  for (let i = 0; i < customerList.options.length; i++) {
+    if (customerList.options[i].selected) {
+      selectCustomerNum = i;
+    }
+  }
+
+  let inspectItemList = document.getElementById("selectInspectItem");
+  let isInspectItem = false;
+  if (inspectItemList.options[1].selected){
+    isInspectItem = true;
+  }
+
+  let registeredList = document.getElementById("selectRegistered");
+  let isRegistered = false;
+  if (registeredList.options[1].selected){
+    isRegistered = true;
+  }
+
+  let sampleSuppliedList = document.getElementById("selectSampleSupplied");
+  let isSampleSupplied = false;
+  if (sampleSuppliedList.options[1].selected){
+    isSampleSupplied = true;
+  }
+
+  let closedList = document.getElementById("selectClosed");
+  let isClosed = false;
+  if (closedList.options[1].selected){
+    isClosed = true;
+  }
+
+  let matterItemNumber = 0;
+  let inputItemNumber = document.getElementById("inputItemNumber").value;
+  if(Number.isInteger(Number(inputItemNumber))){
+    matterItemNumber = inputItemNumber;
+  }
+
+  let complaintNumber = 0;
+  let inputComplaintNumber = document.getElementById("inputComplaintNumber").value;
+  if(Number.isInteger(Number(inputComplaintNumber))){
+    complaintNumber = inputComplaintNumber;
+  }
+
+  let sheetMatterId = document.getElementById("inputSheetMatterId").value;
+  let entryDate = document.getElementById("inputEntryDate").value;
+  let salesPerson = document.getElementById("inputSalesPerson").value;
+  let itemDescription = document.getElementById("inputItemDescription").value;
+  let itemReceiveDate = document.getElementById("inputItemReceiveDate").value;
+  if(itemReceiveDate == ""){
+    itemReceiveDate = null;
+  }
+  let firstActionDate = document.getElementById("inputFirstActionDate").value;
+  if(firstActionDate == ""){
+    firstActionDate = null;
+  }
+  let firstAction = document.getElementById("inputFirstAction").value;
+  let sampleHandling = document.getElementById("inputSampleHandling").value;
+  let returnHandling = document.getElementById("inputReturnHandling").value;
+  let complaintOpenDate = document.getElementById("inputComplaintOpenDate").value;
+  if(complaintOpenDate == ""){
+    complaintOpenDate = null;
+  }
+  let ltdShippingDate = document.getElementById("inputLtdShippingDate").value;
+  if(ltdShippingDate == ""){
+    ltdShippingDate = null;
+  }
+  let ltdAnswerDate = document.getElementById("inputLtdAnswerDate").value;
+  if(ltdAnswerDate == ""){
+    ltdShippingDate = null;
+  }
+  let ltdAnswer = document.getElementById("inputLtdAnswer").value;
+  let closedDate = document.getElementById("inputClosedDate").value;
+  if(closedDate == ""){
+    closedDate = null;
+  }
+  let inputRemark = document.getElementById("inputRemark").value;
+
+  if(!Number.isInteger(selectCustomerNum)){
+    alert("ユーザー名を選択して下さい");
+  }else if((matterItemNumber < 1000000) || (9999999 < matterItemNumber)){
+    alert("アイテム番号が正しくありません");
+  }else if(sheetMatterId == ""){
+    alert("Complaint Sheet No. が入力されていません");
+  }else if(entryDate == ""){
+    alert("受付日が入力されていません");
+  }else if(salesPerson == ""){
+    alert("営業担当が入力されていません");
+  }else if(itemDescription == ""){
+    alert("型番が入力されていません");
+  }else{
+
+    function getCookie(name){
+      let cookieValue = null;
+      if(document.cookie && document.cookie !== ''){
+        const cookies = document.cookie.split(';');
+        for(let i = 0; i < cookies.length; i++){
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')){
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    function inputMatter(){
+      let deferred = new $.Deferred;
+      $.ajax({
+        type: 'POST',
+        url: '/apisys/matters/',
+        headers: {'X-CSRFToken': csrftoken},
+        data: {
+          sheet_matter_id: sheetMatterId,
+          entry_date: entryDate,
+          sales_person: salesPerson,
+          matter_item_number: matterItemNumber,
+          item_description: itemDescription,
+          item_receive_date: itemReceiveDate,
+          first_action_date: firstActionDate,
+          first_action: firstAction,
+          is_inspect_item: isInspectItem,
+          is_registered: isRegistered,
+          is_sample_supplied: isSampleSupplied,
+          sample_handling: sampleHandling,
+          return_handling: returnHandling,
+          complaint_number: complaintNumber,
+          complaint_open_date: complaintOpenDate,
+          ltd_shipping_date: ltdShippingDate,
+          ltd_answer_date: ltdAnswerDate,
+          ltd_answer: ltdAnswer,
+          closed_date: closedDate,
+          remark: inputRemark,
+          is_closed: isClosed,
+          customer: customerIdArr[selectCustomerNum]
+        },
+        datatype: 'json'
+      })
+      .done(function(){
+        alert("1件のデータを入力しました。");
+        deferred.resolve();
+      })
+      .fail(function(){
+        alert("入力エラー");
+        deferred.reject();
+      });
+      return deferred.promise();
+    }
+
+    function reload(){
+      window.location.href = '/matter-list/';
+    }
+
+    $.when(inputMatter())
+    .then(reload, function(){alert("登録エラー");});
+
+  }
+});
+
+</script>
+
+{% endblock %}

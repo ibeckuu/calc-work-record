@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% load static %}
+
+<!-- タイトル -->
+{% block title %}出荷予定入力{% endblock %}
+
+<!-- メインコンテンツ -->
+{% block main %}
+<main>
+  <body class="bg-light">
+    <div class="container">
+      <div class="py-5 text-center">
+        <h2>出荷予定入力</h2>
+      </div>
+      <div class="row">
+        <div class="col-md-12 order-md-1">
+          <form class="needs-validation" novalidate>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="executeDate">出荷予定日</label>
+                <h3><font color="green"><div id="executeDate">{{ execute_date }}</div></font></h3>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="inputCustomerName">ユーザー名</label>
+                <input type="text" class="form-control" id="inputCustomerName" placeholder="" value="" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectCustomer">ユーザー名選択</label>
+                <select class="form-control" id="selectCustomer">
+                </select>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="inputDescription">型番</label>
+                <input type="text" class="form-control" id="inputDescription" placeholder="" value="" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectDescription">型番選択</label>
+                <select class="form-control" id="selectDescription">
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm">
+                <label for="inputInspectQty">出荷予定数</label>
+                <input type="text" class="form-control" id="inputInspectQty">
+              </div>
+              <div class="col-sm">
+              </div>
+              <div class="col-sm">
+              </div>
+              <div class="col-sm">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm">
+              </div>
+              <div class="col-sm">
+                <label for="buttonInput"> </label>
+                <button class="btn btn-primary btn-lg btn-block" type="submit" id="buttonInput">入力</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+      <br><br>
+    <div class=container>
+      <table class='table table-striped'>
+        <caption>検査実績</caption>
+        <thead class='thead-light'>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">出荷予定日</th>
+            <th scope="col">ユーザー名</th>
+            <th scope="col">型番</th>
+            <th scope="col">出荷予定数</th>
+            <th scope="col">検査済み数</th>
+          </tr>
+        </thead>
+        <tbody id="inspectrecordraw">
+        </tbody>
+      </table>
+    </div>
+  </body>
+</main>
+
+<script src="{% static 'fixorderstatus.js' %}"></script>
+<script>
+$('#buttonInput').click(function () {
+  var executeDate = document.getElementById("executeDate").textContent;
+
+  var customerList = document.getElementById("selectCustomer");
+  var selectCustomerNum;
+  for (var i = 0; i < customerList.options.length; i++) {
+    if (customerList.options[i].selected) {
+      selectCustomerNum = i;
+    }
+  }
+
+  var descriptionList = document.getElementById("selectDescription");
+  var selectDescriptionNum;
+  for (var i = 0; i < descriptionList.options.length; i++){
+    if (descriptionList.options[i].selected){
+      selectDescriptionNum = i;
+    }
+  }
+
+  var inspectQty = 0;
+  var inputInspectQty = document.getElementById("inputInspectQty").value;
+  if(Number.isInteger(Number(inputInspectQty))){
+    inspectQty = inputInspectQty;
+  }
+
+  if(!Number.isInteger(selectDescriptionNum)){
+    alert("型番を選択して下さい");
+  }else{
+    //alert("ok");
+    function getCookie(name){
+      let cookieValue = null;
+      if(document.cookie && document.cookie !== ''){
+        const cookies = document.cookie.split(';');
+        for(let i = 0; i < cookies.length; i++){
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')){
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    $.ajax({
+      type: 'POST',
+      url: '/api/v1/inputorder/',
+      headers: {'X-CSRFToken': csrftoken},
+      data: {
+        item: descriptionIdArr[selectDescriptionNum],
+        scheduled_shipping_date: executeDate,
+        order_qty: inspectQty,
+        customer: customerIdArr[selectCustomerNum]
+      },
+      datatype: 'json',
+      success: function(data, statusText, jqXHR){
+        //alert("1件のデータを入力しました。");
+      },
+      error: function(jqXHR, statusText, error){
+        console.log(jqXHR.status);
+        alert("error!(出荷予定入力) " + jqXHR.status);
+      }
+    });
+    // alert("完了");
+  }
+});
+
+$(document).ready(function(){
+  // var dt = new Date();
+  // dt.setDate(dt.getDate() - 7);
+  // var startDate = dt.toISOString().substring(0,10);
+  $.ajax({
+    type: 'GET',
+    url: '/api/v1/inputorder/',
+    datatype: 'json',
+    success: function(data, statusText, jqXHR){
+      let tr = '';
+      $.each(data, function(index, value){
+        tr += '<tr><th scope="row">'; 
+        tr += '<a href="/fixorderstatus/' + value.id + '/">';
+        tr += (index + 1);
+        tr += '</a></th>';
+        tr += '<td>' + value.scheduled_shipping_date + '</td>';
+        tr += '<td>' + value.customer_name + '</td>';
+        tr += '<td>' + value.item_description + '</td>';
+        tr += '<td class="text-right">' + value.order_qty + '</td>';
+        // tr += '<td class="text-right">' + value.defective_qty + '</td>';
+        tr += '<td class="text-right">' + value.item_inspected_qty + '</td></tr>';
+      })
+      $('#inspectrecordraw').append(tr);
+    },
+    error: function(jqXHR, statusText, error){
+
+    }
+  });
+
+});
+</script>
+
+{% endblock %}

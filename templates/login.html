@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>ログイン</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <!--Ajax-->
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+    {% load static %}
+    <link href="{% static 'favicon.ico' %}" rel='icon' />
+    <link href="{% static 'apple-touch-icon.png' %}" rel='icon' />
+    <link href="{% static 'apple-touch-icon-precomposed.png' %}" rel='icon' />
+
+
+    <!-- Bootstrap core CSS -->
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="{% static 'bootstrap-css/signin.css' %}" rel='stylesheet' />
+
+  </head>
+  <body class="text-center">
+    <form class="form-signin">
+  <img class="mb-4" src="{% static 'apple-touch-icon-precomposed.png' %}" alt="" width="72" height="72">
+  <h1 class="h3 mb-3 font-weight-normal">品質保証チームサイト・ログイン</h1>
+  <label for="inputUserName" class="sr-only">UserName</label>
+  <input type="text" id="inputUserName" class="form-control" placeholder="User Name" required autofocus>
+  <label for="inputPassword" class="sr-only">Password</label>
+  <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+  <button class="btn btn-lg btn-primary btn-block" type="button" id="submitButton">ログイン</button>
+
+  <script>
+
+      $(document).ready(function(){
+        $.ajax({
+          type: 'GET',
+          url: '/authindex/',
+          datatype: 'json',
+          success: function(data, statusText, jqXHR){
+            //alert(data.user + ' ' + data.is_staff);
+            window.location.href = "/" ;
+          },
+          error: function(jqXHR, statusText, error){
+            // window.location.href = "login/" ;
+          }
+          /*
+          complete: function(jqXHR, statusText){
+            alert(jqXHR.status);
+          }
+          */
+        });
+      });
+
+    $('#submitButton').click(function(){
+      var username = document.getElementById('inputUserName');
+      var password = document.getElementById('inputPassword');
+      var sendData = JSON.stringify({"username":username.value, "password":password.value});
+      $.ajax({
+        type: 'POST', url: '/api-auth/login/', data: sendData,
+        contentType: 'application/json',  dataType: 'json',
+        beforeSend: function(jqXHR, options){
+
+        },
+        success: function(data, statusText, jqXHR){
+          if(jqXHR.status == 200){
+            // alert("authenticated!");
+            window.location.href = "/";
+          }else{
+            alert(jqXHR.status);
+          }
+        },
+        error: function(jqXHR, statusText, error){
+          // alert(JSON.stringify(data));
+          if(jqXHR.status == 400){
+            alert("ユーザー名かパスワードのどちらか、または両方が間違っています。");
+          }else{
+            alert("エラーが発生しました。" + error);
+          }
+        },
+        complete: function(jqXHR, statusText){
+          
+        }
+      });
+    })
+  </script>
+
+  <p class="mt-5 mb-3 text-muted">&copy; イスカルジャパン（株）神戸テックセンター 2022</p>
+</form>
+</body>
+</html>

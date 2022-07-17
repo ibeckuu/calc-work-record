@@ -1,0 +1,14 @@
+config/settings.py
+.vscode/
+.idea
+node_modules/
+package-lock.json
+postgres-data/
+docker-compose.yml
+apiv1/migrations/
+inspection/migrations/
+accounts/migrations/
+*.pyc
+__pycache__/
+venv/
+

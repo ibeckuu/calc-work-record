@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load static %}
+
+<!-- タイトル -->
+{% block title %}検査予定入力{% endblock %}
+
+<!-- メインコンテンツ -->
+{% block main %}
+<main>
+  <body class="bg-light">
+    <div class="container">
+      <div class="py-5 text-center">
+        <h2>検査予定入力</h2>
+      </div>
+      <div class="row">
+        <div class="col-md-12 order-md-1">
+          <form class="needs-validation" novalidate>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="executeDate">実施日</label>
+                <h3><font color="green"><div id="executeDate">{{ execute_date }}</div></font></h3>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectOperator">担当者</label>
+                <select class="form-control" id="selectOperator" placeholder="" value="" required>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+
+              <div class="col-md-6 mb-3">
+                <label for="inputDescription">型番</label>
+                <input type="text" class="form-control" id="inputDescription" placeholder="" value="" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="selectDescription">型番選択</label>
+                <select class="form-control" id="selectDescription">
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm">
+              </div>
+              <div class="col-sm">
+                <label for="buttonInput"> </label>
+                <button class="btn btn-primary btn-lg btn-block" type="submit" id="buttonInput">入力</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+      <br><br>
+    <div class=container>
+      <table class='table table-striped'>
+        <caption>検査実績</caption>
+        <thead class='thead-light'>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">検査予定日</th>
+            <th scope="col">担当者</th>
+            <th scope="col">型番</th>
+          </tr>
+        </thead>
+        <tbody id="inspectrecordraw">
+        </tbody>
+      </table>
+    </div>
+  </body>
+</main>
+
+<script src="{% static 'inputinspectionschedule.js' %}"></script>
+<script>
+$('#buttonInput').click(function () {
+  var executeDate = document.getElementById("executeDate").textContent;
+
+  var operatorList = document.getElementById("selectOperator");
+  var selectOperatorNum;
+  for(var i = 0; i < operatorList.options.length; i++){
+    if(operatorList.options[i].selected){
+      selectOperatorNum = i;
+    }
+  }
+
+  var descriptionList = document.getElementById("selectDescription");
+  var selectDescriptionNum;
+  for (var i = 0; i < descriptionList.options.length; i++){
+    if (descriptionList.options[i].selected){
+      selectDescriptionNum = i;
+    }
+  }
+
+  if(!Number.isInteger(selectDescriptionNum)){
+    alert("型番を選択して下さい");
+  }else{
+    function getCookie(name){
+      let cookieValue = null;
+      if(document.cookie && document.cookie !== ''){
+        const cookies = document.cookie.split(';');
+        for(let i = 0; i < cookies.length; i++){
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')){
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    $.ajax({
+      type: 'POST',
+      url: '/api/v1/inspectschedule/',
+      headers: {'X-CSRFToken': csrftoken},
+      data: {
+        item: descriptionIdArr[selectDescriptionNum],
+        scheduled_inspect_date: executeDate,
+        operator: operatorIdArr[selectOperatorNum],
+        // customer: customerIdArr[selectCustomerNum]
+      },
+      datatype: 'json',
+      success: function(data, statusText, jqXHR){
+        // alert("1件のデータを入力しました。");
+      },
+      error: function(jqXHR, statusText, error){
+        console.log(jqXHR.status);
+        alert("error!(検査予定入力) " + jqXHR.status);
+      }
+    });
+  }
+});
+
+$(document).ready(function(){
+  var dt = new Date();
+  dt.setDate(dt.getDate() - 7);
+  var startDate = dt.toISOString().substring(0,10);
+  $.ajax({
+    type: 'GET',
+    url: '/api/v1/inspectschedule/?latest__gte=' + startDate,
+    datatype: 'json',
+    success: function(data, statusText, jqXHR){
+      let tr = '';
+      $.each(data, function(index, value){
+        tr += '<tr><th scope="row">'; 
+        tr += '<a href="/fixinspectschedule/' + value.id + '/">';
+        tr += (index + 1);
+        tr += '</a></th>';
+        tr += '<td>' + value.scheduled_inspect_date + '</td>';
+        tr += '<td>' + value.operator_name + '</td>';
+        tr += '<td>' + value.item_description + '</td>';
+      })
+      $('#inspectrecordraw').append(tr);
+    },
+    error: function(jqXHR, statusText, error){
+
+    }
+  });
+
+});
+</script>
+
+{% endblock %}
